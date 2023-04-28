@@ -59,6 +59,35 @@ void setup() {
   digitalWrite(ledr1,HIGH);
 }
 
+void loop() {
+  Serial.println("Arva kood");
+  digitalWrite(ledr2,LOW);
+  seeker(snivoo, ooteaeg, salvestusaeg, knocking);
+  digitalWrite(ledr2,HIGH);
+  Serial.println("Analüüsi algus");
+  find_ratios(knockcode, kc_ratios);
+  find_ratios(knocking, k_ratios);
+  diffs(kc_ratios, k_ratios, kc_k_dif);
+
+  if (approve(kc_k_dif, mnivoo)){
+    digitalWrite(relee, HIGH);
+    delay(5000);
+    digitalWrite(relee, LOW);
+  }
+  else{
+    for (int i = 0; i < 20; i++){
+      digitalWrite(ledp,HIGH);
+      delay(50);
+      digitalWrite(ledp,LOW);
+      delay(50);
+    }
+  }
+}
+
+
+/*
+ * Analüüsi funktsioonid
+ */
 void find_ratios(long list[], float ratios[]){
   Serial.println("Suhete leidmine");
   for (int i = 0; i < 8; i++){
@@ -96,21 +125,10 @@ boolean approve(float errors[], float aerror){
   return true;
 }
 
+/*
+ * Signaali tuvastamine ja valideerimine
+ */
 
-
-boolean check(long data[]){
-  if (data[1] == 0){
-    for (int i = 0; i < 4; i++){
-      digitalWrite(ledp,HIGH);
-      delay(100);
-      digitalWrite(ledp,LOW);
-      delay(100);
-    }
-    
-    return false;
-  }
-  return true;
-}
 void seeker(int level, long pause, long rtime, long list[]){
   digitalWrite(ledk, HIGH);
   while(true){
@@ -154,28 +172,16 @@ void seeker(int level, long pause, long rtime, long list[]){
   }
 }
 
-
-void loop() {
-  Serial.println("Arva kood");
-  digitalWrite(ledr2,LOW);
-  seeker(snivoo, ooteaeg, salvestusaeg, knocking);
-  digitalWrite(ledr2,HIGH);
-  Serial.println("Analüüsi algus");
-  find_ratios(knockcode, kc_ratios);
-  find_ratios(knocking, k_ratios);
-  diffs(kc_ratios, k_ratios, kc_k_dif);
-
-  if (approve(kc_k_dif, mnivoo)){
-    digitalWrite(relee, HIGH);
-    delay(5000);
-    digitalWrite(relee, LOW);
-  }
-  else{
-    for (int i = 0; i < 20; i++){
+boolean check(long data[]){
+  if (data[1] == 0){
+    for (int i = 0; i < 4; i++){
       digitalWrite(ledp,HIGH);
-      delay(50);
+      delay(100);
       digitalWrite(ledp,LOW);
-      delay(50);
+      delay(100);
     }
+    
+    return false;
   }
+  return true;
 }
